@@ -55,7 +55,7 @@ else
 fi 
 
 mkdir -p /app &>>$LOGFILE
-VALIDATE $? "Creating the app directory"
+VALIDATE $? "Creating app directory"
 
 curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
 VALIDATE $? "Downloading backend code"
@@ -67,11 +67,11 @@ VALIDATE $? "Extracted backend code"
 npm install &>>$LOGFILE
 VALIDATE $? "Installing nodejs dependencies"
 
-cd /home/ec2-user/expense-shell/backend.service /etc/systemd/system/backend.service &>>$LOGFILE
+cp /home/ec2-user/expense-shell/backend.service /etc/systemd/system/backend.service &>>$LOGFILE
 VALIDATE $? "Copied backend service"
 
 systemctl daemon-reload &>>$LOGFILE
-VALIDATE $? "daemon-reload"
+VALIDATE $? "Daemon-reload"
 
 systemctl start backend &>>$LOGFILE
 VALIDATE $? "Starting backend"
