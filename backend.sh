@@ -60,10 +60,30 @@ VALIDATE $? "Creating app directory"
 curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
 VALIDATE $? "Downloading backend code"
 
-cd /app &>>$LOGFILE
-unzip /tmp/backend.zip
+cd /app 
+unzip /tmp/backend.zip &>>$LOGFILE
 VALIDATE $? "Extracted backend code"
 
 npm install &>>$LOGFILE
 VALIDATE $? "Installing nodejs dependencies"
 
+cp /home/ec2-user/expense-shell/backend.service /etc/systemd/system/backend.service &>>$LOGFILE
+VALIDATE $? "Copied backend service"
+
+systemctl daemon-reload &>>$LOGFILE
+VALIDATE $? "Daemon-reload"
+
+systemctl start backend &>>$LOGFILE
+VALIDATE $? "Starting backend"
+
+systemctl enable backend &>>$LOGFILE
+VALIDATE $? "Enabling backend"
+
+dnf install mysql -y &>>$LOGFILE
+VALIDATE $? "Installing MySQL Client"
+
+mysql -h db.aws-9s.shop -uroot -p${mysql_root_password} < /app/schema/backend.sql &>>$LOGFILE
+VALIDATE $? "Schema loading"
+
+systemctl restart backend &>>$LOGFILE
+VALIDATE $? "Restarting backend"
