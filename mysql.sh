@@ -40,5 +40,17 @@ VALIDATE $? "Enabling MySQL Server"
 systemctl start mysqld &>>$LOGFILE
 VALIDATE $? "Starting MySQL Server"
 
-mysql_secure_installation --set-root-pass ExpenseApp@1 &>>$LOGFILE
-VALIDATE $? "Setting the root password"
+#mysql_secure_installation --set-root-pass ExpenseApp@1 &>>$LOGFILE
+#VALIDATE $? "Setting the root password"
+
+#Below code wull be useful for idempotatent nature
+
+mysql -h db.aws-9s.shop -uroot -pExpenseApp@1 -e 'show databases;' &>>$LOGFILE
+if [ $? -ne 0]
+ then 
+   mysql_secure_installation --set-root-pass ExpenseApp@1
+    VALIDATE $? "MySQL Root password Setup"
+
+  else 
+    echo "MySQL Root password is already setup...$Y SKIPPING $N"
+fi 
