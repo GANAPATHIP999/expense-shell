@@ -9,6 +9,8 @@ R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
+echo "Please eb=nter DB password:"
+read -s mysql_root_password
 
 VALIDATE(){
     if [ $1 -ne 0 ]
@@ -45,10 +47,10 @@ VALIDATE $? "Starting MySQL Server"
 
 #Below code wull be useful for idempotatent nature
 
-mysql -h db.aws-9s.shop -uroot -pExpenseApp@1 -e 'show databases;' &>>$LOGFILE
+mysql -h db.aws-9s.shop -uroot -p${mysql_root_password} -e 'show databases;' &>>$LOGFILE
 if [ $? -ne 0]
  then 
-   mysql_secure_installation --set-root-pass ExpenseApp@1
+   mysql_secure_installation --set-root-pass ${mysql_root_password} &>>$LOGFILE
     VALIDATE $? "MySQL Root password Setup"
 
   else 
