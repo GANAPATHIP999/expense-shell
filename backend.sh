@@ -9,6 +9,8 @@ R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
+echo "Please eb=nter DB password:"
+read -s mysql_root_password
 
 
 VALIDATE(){
@@ -52,15 +54,36 @@ else
   echo -e "Expense user already created...$R SKIPPING $N"
 fi 
 
-mkdir -p /app
+mkdir -p /app &>>$LOGFILE
 VALIDATE $? "Creating the app directory"
 
 curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
 VALIDATE $? "Downloading backend code"
 
-cd /app
+cd /app &>>$LOGFILE
 unzip /tmp/backend.zip
 VALIDATE $? "Extracted backend code"
 
-npm install
+npm install &>>$LOGFILE
 VALIDATE $? "Installing nodejs dependencies"
+
+cd /home/ec2-user/expense-shell/backend.service/etc/systemd/system/backend.service &>>$LOGFILE
+VALIDATE $? "Copied backend service"
+
+systemctl daemon-reload &>>$LOGFILE
+VALIDATE $? "daemon-reload"
+
+systemctl start backend &>>$LOGFILE
+VALIDATE $? "Starting backend"
+
+systemctl enable backend &>>$LOGFILE
+VALIDATE $? "Enabling backend"
+
+dnf install mysql -y &>>$LOGFILE
+VALIDATE $? "Installing MySQL Client"
+
+mysql -h db.aws-9s.shop -uroot -p${mysql_root_password} < /app/schema/backend.sql &>>$LOGFILE
+VALIDATE $? "Schema Loading"
+
+systemctl restart backend &>>$LOGFILE
+VALIDATE $? "Restarting backend"
